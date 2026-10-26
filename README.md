@@ -1,6 +1,6 @@
 # Modern Data Engineering Platform
 
-![CI](https://github.com/andreluizpedroso/Plataforma-de-Dados-End-to-End/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/andreluizpedroso/plataforma-de-dados-end-to-end/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-FF694B?style=flat&logo=dbt&logoColor=white)
 ![Airflow](https://img.shields.io/badge/Airflow-017CEE?style=flat&logo=apache-airflow&logoColor=white)
