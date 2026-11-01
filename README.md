@@ -8,26 +8,28 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
 ![Metabase](https://img.shields.io/badge/Metabase-509EE3?style=flat&logo=metabase&logoColor=white)
 
-Projeto educacional para construir uma plataforma local de engenharia de dados ponta a ponta.
+🇧🇷 [Leia em português](README.pt-BR.md)
 
-## Objetivo
+A hands-on reference implementation of an end-to-end data engineering platform that runs entirely on a local machine.
 
-Construir, entender e evoluir um pipeline com:
+## Goal
 
-- PostgreSQL como banco transacional OLTP
-- Python para ingestao e automacao
-- Parquet como armazenamento intermediario columnar
-- DuckDB como warehouse analitico local
-- dbt para transformacoes SQL
-- Airflow para orquestracao
-- Metabase para BI
-- Arquitetura Medallion: bronze, silver e gold
+Build, understand and evolve a pipeline with:
 
-## Por que esse projeto?
+- PostgreSQL as the transactional OLTP database
+- Python for ingestion and automation
+- Parquet as columnar intermediate storage
+- DuckDB as the local analytical warehouse
+- dbt for SQL transformations
+- Airflow for orchestration
+- Metabase for BI
+- Medallion architecture: bronze, silver and gold
 
-Aprender engenharia de dados lendo tutoriais isolados deixa lacunas: você sabe usar cada ferramenta, mas não sabe como elas se encaixam num pipeline real. Este projeto monta o ambiente completo — ingestão, transformação, orquestração e BI — na sua máquina, sem custo de nuvem, para que você possa quebrar, consertar e entender cada camada com dados que você mesmo controla. É a diferença entre estudar uma peça do quebra-cabeça e ver a imagem toda montada.
+## Why this project?
 
-## Arquitetura inicial
+Learning data engineering from isolated tutorials leaves gaps: you know how to use each tool, but not how they fit together in a real pipeline. This project assembles the full environment (ingestion, transformation, orchestration and BI) on your own machine, with no cloud cost, so you can break, fix and understand each layer using data you control. It is the difference between studying one piece of the puzzle and seeing the whole picture assembled.
+
+## Initial architecture
 
 ```text
 PostgreSQL OLTP
@@ -36,7 +38,7 @@ PostgreSQL OLTP
       v
 data/bronze/*.parquet
       |
-      | limpeza, tipagem, deduplicacao
+      | cleaning, typing, deduplication
       v
 data/silver/*.parquet
       |
@@ -44,12 +46,12 @@ data/silver/*.parquet
       v
 warehouse/local.duckdb
       |
-      | marts gold
+      | gold marts
       v
 Metabase
 ```
 
-## Estrutura
+## Structure
 
 ```text
 .
@@ -78,36 +80,36 @@ Metabase
 └── docker-compose.yml
 ```
 
-## Como iniciar a infraestrutura
+## Getting started with the infrastructure
 
-Copie `.env.example` para `.env` e ajuste se quiser.
+Copy `.env.example` to `.env` and adjust it if needed.
 
 ```powershell
 docker compose up -d postgres_oltp metabase airflow-init airflow-webserver airflow-scheduler
 ```
 
-Servicos principais:
+Main services:
 
 - PostgreSQL OLTP: `localhost:5432`
 - Metabase: `http://localhost:3000`
 - Airflow: `http://localhost:8080`
 
-## Ordem de aprendizado
+## Learning path
 
-1. Modelagem OLTP no PostgreSQL.
-2. Ingestao batch com Python.
-3. Escrita idempotente em Parquet bronze.
-4. Limpeza e incrementalidade em silver.
-5. Modelagem dimensional gold com dbt.
-6. Orquestracao com Airflow.
-7. BI com Metabase.
-8. Testes, observabilidade e CI/CD.
+1. OLTP modeling in PostgreSQL.
+2. Batch ingestion with Python.
+3. Idempotent writes to bronze Parquet.
+4. Cleaning and incremental processing in silver.
+5. Gold dimensional modeling with dbt.
+6. Orchestration with Airflow.
+7. BI with Metabase.
+8. Testing, observability and CI/CD.
 
-## Dominio inicial
+## Initial domain
 
-O primeiro dominio do projeto e uma plataforma de investimentos.
+The first domain of the project is an investment platform.
 
-Modelo OLTP inicial:
+Initial OLTP model:
 
 - `app.customers`
 - `app.accounts`
@@ -116,11 +118,11 @@ Modelo OLTP inicial:
 - `app.trades`
 - `app.cash_transactions`
 
-Documentacao: `docs/oltp_investments_model.md`.
+Documentation: `docs/oltp_investments_model.md`.
 
-## Pipeline batch local
+## Local batch pipeline
 
-Depois que o PostgreSQL estiver no ar e populado pelos scripts de init:
+Once PostgreSQL is up and populated by the init scripts:
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -129,28 +131,28 @@ dbt run --project-dir dbt --profiles-dir dbt
 dbt test --project-dir dbt --profiles-dir dbt
 ```
 
-O Airflow possui a DAG `investments_batch_pipeline`, que executa:
+Airflow provides the `investments_batch_pipeline` DAG, which runs:
 
-1. ingestao PostgreSQL -> Bronze/Silver/DuckDB
+1. PostgreSQL ingestion -> Bronze/Silver/DuckDB
 2. `dbt run`
 3. `dbt test`
-4. publica `main_gold.mart_account_positions` em `analytics.mart_account_positions` no PostgreSQL para o Metabase
+4. publishes `main_gold.mart_account_positions` to `analytics.mart_account_positions` in PostgreSQL for Metabase
 
-Runbook operacional: `docs/runbook.md`.
+Operational runbook: `docs/runbook.md`.
 
-## Testes e CI
+## Tests and CI
 
 ```bash
 pytest -q
 ```
 
-15 testes cobrindo `ingestion/src/` (bronze, silver, warehouse, pipeline, publish, config, logging) — 99% de cobertura. A maioria roda contra arquivos Parquet e um DuckDB local reais (sem precisar do Postgres/Airflow no ar); as poucas partes que exigem Postgres (`bronze.extract_bronze`, `publish.publish_gold_to_postgres`) são testadas com mocks do `psycopg2`.
+15 tests covering `ingestion/src/` (bronze, silver, warehouse, pipeline, publish, config, logging), with 99% coverage. Most of them run against real Parquet files and a real local DuckDB (no need for Postgres/Airflow to be running); the few parts that require Postgres (`bronze.extract_bronze`, `publish.publish_gold_to_postgres`) are tested with `psycopg2` mocks.
 
-CI (GitHub Actions) roda `pytest` com cobertura (mínimo 60%) e lint (`ruff`) em todo push/PR para `main`.
+CI (GitHub Actions) runs `pytest` with coverage (60% minimum) and linting (`ruff`) on every push/PR to `main`.
 
-## Próximos passos
+## Next steps
 
-- **Qualidade de dados com Great Expectations**: adicionar contratos de dados entre as camadas bronze → silver → gold, com alertas quando expectativas forem violadas.
-- **`dbt test` no CI**: hoje o CI roda os testes Python; falta incluir `dbt run` + `dbt test` no workflow (exige subir um Postgres de teste no runner).
-- **Deploy em nuvem**: migrar o warehouse local para BigQuery ou Redshift e o storage de Parquet para S3/GCS, mantendo a mesma arquitetura Medallion com custo controlado.
-- **Streaming com Kafka**: introduzir um producer que publique eventos de trade em tempo real e um consumer que alimente a camada bronze, evoluindo o pipeline de batch para near-realtime.
+- **Data quality with Great Expectations**: add data contracts between the bronze → silver → gold layers, with alerts when expectations are violated.
+- **`dbt test` in CI**: CI currently runs the Python tests only; `dbt run` + `dbt test` still need to be added to the workflow (this requires starting a test Postgres on the runner).
+- **Cloud deployment**: migrate the local warehouse to BigQuery or Redshift and the Parquet storage to S3/GCS, keeping the same Medallion architecture with controlled cost.
+- **Streaming with Kafka**: introduce a producer that publishes trade events in real time and a consumer that feeds the bronze layer, evolving the pipeline from batch to near-real-time.
